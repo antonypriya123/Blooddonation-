@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Find Blood Donors – BloodConnect</title>
+  <meta name="description" content="Search for verified blood donors by blood group, city, and availability. Real-time donor search powered by BloodConnect."/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩸</text></svg>"/>
+  <link rel="stylesheet" href="/css/styles.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    .search-bar { background: var(--bg-card); border-radius: var(--radius-xl); padding: 28px 32px; box-shadow: var(--shadow-md); border: 1px solid var(--border-light); margin-bottom: 36px; }
+    .search-fields { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 16px; align-items: end; }
+    .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .results-count { font-size: .9rem; color: var(--text-muted); }
+    .donors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .disclaimer { background: var(--warning-soft); border: 1px solid var(--warning); border-radius: var(--radius); padding: 12px 16px; font-size: .8rem; color: #7a5e02; margin-bottom: 28px; }
+    @media(max-width:768px) { .search-fields { grid-template-columns: 1fr 1fr; } .search-fields > :last-child { grid-column: 1/-1; } }
+    @media(max-width:480px) { .search-fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/index.html" class="nav-brand">
+      <div class="nav-brand-icon">🩸</div>
+      <span class="nav-brand-name">BloodConnect</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="/index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="/find-donors.html" class="nav-link active"><i class="fa-solid fa-magnifying-glass"></i> Find Donors</a>
+      <a href="/requests.html" class="nav-link"><i class="fa-solid fa-droplet"></i> Blood Requests</a>
+    </div>
+    <div class="nav-actions" id="nav-actions">
+      <div id="nav-guest" class="d-flex align-center gap-2" style="display:none">
+        <a href="/login.html" class="btn btn-ghost btn-sm">Log In</a>
+        <a href="/register.html" class="btn btn-primary btn-sm">Register</a>
+      </div>
+      <div id="nav-user" class="d-flex align-center gap-3" style="display:none">
+        <a href="#" id="nav-dashboard-link" class="btn btn-ghost btn-sm"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <div class="nav-user-info">
+          <div class="nav-avatar" id="nav-avatar">U</div>
+          <span id="nav-user-name">User</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="Navbar.logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<main style="padding-top: var(--nav-h); min-height: 100vh; background: var(--bg);">
+  <div style="background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); padding: 48px 24px 60px; margin-bottom: -32px;">
+    <div class="container text-center">
+      <p style="color: rgba(255,255,255,.5); font-size:.78rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:10px">DONOR SEARCH</p>
+      <h1 style="color: white; font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px">Find Blood Donors Near You</h1>
+      <p style="color: rgba(255,255,255,.6); font-size:1rem; max-width:500px; margin:0 auto">Search our verified donor network by blood group, city, and availability. All data is live from our Railway Cloud database.</p>
+    </div>
+  </div>
+
+  <div class="container" style="padding: 48px 24px;">
+
+    <!-- Medical Disclaimer -->
+    <div class="disclaimer">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <strong>Medical Notice:</strong> Blood type compatibility shown here is for information only. Actual donor eligibility and blood compatibility must be confirmed by qualified healthcare professionals at the donation site.
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <h2 style="font-size:1.1rem; font-weight:700; margin-bottom:20px; color:var(--text-primary)"><i class="fa-solid fa-sliders" style="color:var(--primary)"></i> Search Filters</h2>
+      <form id="search-form">
+        <div class="search-fields">
+          <div class="form-group mb-0">
+            <label class="form-label" for="filter-blood-group">Blood Group</label>
+            <select class="form-control" id="filter-blood-group">
+              <option value="">All Blood Groups</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label" for="filter-city">City</label>
+            <div class="input-group">
+              <i class="fa-solid fa-city input-icon"></i>
+              <input type="text" class="form-control" id="filter-city" placeholder="e.g. New York"/>
+            </div>
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label" for="filter-state">State</label>
+            <div class="input-group">
+              <i class="fa-solid fa-map input-icon"></i>
+              <input type="text" class="form-control" id="filter-state" placeholder="e.g. New York"/>
+            </div>
+          </div>
+          <div class="form-group mb-0">
+            <label class="form-label" for="filter-availability">Availability</label>
+            <select class="form-control" id="filter-availability">
+              <option value="">Any Availability</option>
+              <option value="true">Available Now</option>
+              <option value="false">Unavailable</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="submit" class="btn btn-primary" id="btn-search" style="white-space:nowrap">
+              <i class="fa-solid fa-magnifying-glass"></i> Search
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="clearSearch()" title="Reset Filters">
+              <i class="fa-solid fa-rotate-left"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Results -->
+    <div class="results-header">
+      <h2 style="font-size:1.15rem; font-weight:700">Donor Results</h2>
+      <span class="results-count" id="results-count">Loading donors...</span>
+    </div>
+
+    <div class="donors-grid" id="donors-grid">
+      <div class="loading-overlay" style="grid-column:1/-1">
+        <div class="spinner"></div>
+        <p>Searching donor database...</p>
+      </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div class="modal-overlay" id="contact-modal">
+      <div class="modal" style="max-width:440px">
+        <div class="modal-header">
+          <h3 class="modal-title">Contact Donor</h3>
+          <button class="modal-close" data-modal-close="contact-modal">✕</button>
+        </div>
+        <div class="modal-body" id="contact-modal-body">
+          <!-- Filled dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" data-modal-close="contact-modal">Close</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer style="background: var(--navy); color: rgba(255,255,255,.5); text-align:center; padding: 24px; font-size:.8rem">
+  © 2024 BloodConnect — Powered by Spring Boot & Railway Cloud MySQL
+</footer>
+
+<div class="toast-container" id="toast-container"></div>
+<script src="/js/app.js"></script>
+<script>
+  async function loadDonors(params = {}) {
+    const grid    = document.getElementById('donors-grid');
+    const counter = document.getElementById('results-count');
+    const btn     = document.getElementById('btn-search');
+
+    grid.innerHTML = `<div class="loading-overlay" style="grid-column:1/-1"><div class="spinner"></div><p>Fetching donors from database...</p></div>`;
+    counter.textContent = 'Searching...';
+    if (btn) setLoading(btn, true, 'Searching...');
+
+    try {
+      const res = await API.searchDonors(params);
+      if (btn) setLoading(btn, false);
+
+      if (!res.success || !res.data) {
+        throw new Error(res.message || 'Failed to load donors');
+      }
+
+      const donors = res.data;
+      counter.textContent = `${donors.length} donor${donors.length !== 1 ? 's' : ''} found`;
+
+      if (!donors.length) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column:1/-1">
+            <div class="empty-state-icon">🔍</div>
+            <h3>No Donors Found</h3>
+            <p>Try adjusting your filters or broadening your search area.</p>
+            <button class="btn btn-outline mt-4" onclick="clearSearch()">Clear Filters</button>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = donors.map(d => `
+        <div class="donor-card">
+          <div class="d-flex justify-between align-center mb-3">
+            ${bloodGroupBadge(d.bloodGroup)}
+            ${availabilityBadge(d.available)}
+          </div>
+          <h3 style="font-size:1.05rem; font-weight:700; margin-bottom:4px">${d.fullName}</h3>
+          <p style="font-size:.82rem; color:var(--text-muted); margin-bottom:12px">
+            <i class="fa-solid fa-location-dot" style="color:var(--primary)"></i> ${d.city}, ${d.state}
+          </p>
+          <div style="display:flex; gap:14px; font-size:.78rem; color:var(--text-secondary); margin-bottom:16px; flex-wrap:wrap;">
+            <span title="Total Donations"><i class="fa-solid fa-syringe"></i> ${d.totalDonations} donation${d.totalDonations !== 1 ? 's' : ''}</span>
+            ${d.lastDonationDate ? `<span title="Last Donation"><i class="fa-regular fa-calendar"></i> Last: ${formatDate(d.lastDonationDate)}</span>` : ''}
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-primary btn-sm flex-1" onclick="showContactModal(${JSON.stringify(d).replace(/"/g,'&quot;')})" ${!d.available ? 'style="opacity:.6; cursor:not-allowed" title="Donor currently unavailable"' : ''}>
+              <i class="fa-solid fa-phone"></i> Contact
+            </button>
+            <a href="/requests.html#new" class="btn btn-outline btn-sm"><i class="fa-solid fa-plus"></i> Request</a>
+          </div>
+        </div>
+      `).join('');
+
+    } catch(err) {
+      if (btn) setLoading(btn, false);
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-state-icon">⚠️</div>
+          <h3>Error Loading Donors</h3>
+          <p>${err.message || 'Could not connect to the donor database'}</p>
+          <button class="btn btn-primary mt-4" onclick="loadDonors()">Retry</button>
+        </div>`;
+      counter.textContent = 'Error';
+    }
+  }
+
+  function showContactModal(donor) {
+    const body = document.getElementById('contact-modal-body');
+    body.innerHTML = `
+      <div style="text-align:center; margin-bottom:24px">
+        <div style="width:64px; height:64px; background:linear-gradient(135deg,var(--primary),var(--accent)); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.5rem; color:white; font-weight:800; box-shadow:var(--shadow-red)">${donor.bloodGroup}</div>
+        <h3 style="font-size:1.1rem; font-weight:700">${donor.fullName}</h3>
+        <p style="color:var(--text-muted); font-size:.875rem"><i class="fa-solid fa-location-dot"></i> ${donor.city}, ${donor.state}</p>
+        ${availabilityBadge(donor.available)}
+      </div>
+      <div style="background:var(--surface); border-radius:var(--radius); padding:16px;">
+        <div style="margin-bottom:12px; display:flex; align-items:center; gap:10px; font-size:.875rem;">
+          <i class="fa-solid fa-envelope" style="color:var(--primary); width:16px"></i>
+          <span>${donor.email}</span>
+        </div>
+        <div style="margin-bottom:12px; display:flex; align-items:center; gap:10px; font-size:.875rem;">
+          <i class="fa-solid fa-phone" style="color:var(--primary); width:16px"></i>
+          <span>${donor.mobileNumber}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; font-size:.875rem;">
+          <i class="fa-solid fa-syringe" style="color:var(--primary); width:16px"></i>
+          <span>${donor.totalDonations} total donation${donor.totalDonations !== 1 ? 's' : ''}</span>
+        </div>
+      </div>
+      <div style="background:var(--warning-soft); border-radius:var(--radius); padding:12px 14px; margin-top:16px; font-size:.75rem; color:#7a5e02">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Please always confirm donor eligibility and compatibility with a healthcare professional before proceeding with a donation.
+      </div>
+    `;
+    Modal.open('contact-modal');
+  }
+
+  function clearSearch() {
+    document.getElementById('filter-blood-group').value = '';
+    document.getElementById('filter-city').value = '';
+    document.getElementById('filter-state').value = '';
+    document.getElementById('filter-availability').value = '';
+    loadDonors();
+  }
+
+  document.getElementById('search-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const params = {
+      bloodGroup:   document.getElementById('filter-blood-group').value,
+      city:         document.getElementById('filter-city').value.trim(),
+      state:        document.getElementById('filter-state').value.trim(),
+      isAvailable:  document.getElementById('filter-availability').value
+    };
+    await loadDonors(params);
+  });
+
+  // Check URL params
+  document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const bg = urlParams.get('bloodGroup');
+    if (bg) {
+      document.getElementById('filter-blood-group').value = bg;
+      loadDonors({ bloodGroup: bg });
+    } else {
+      loadDonors();
+    }
+  });
+</script>
+</body>
+</html>

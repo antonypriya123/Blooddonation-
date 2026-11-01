@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard – BloodConnect</title>
+  <meta name="description" content="BloodConnect Administrator Dashboard — manage users, donors, blood requests, and view live system statistics."/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩸</text></svg>"/>
+  <link rel="stylesheet" href="/css/styles.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/index.html" class="nav-brand">
+      <div class="nav-brand-icon">🩸</div>
+      <span class="nav-brand-name">BloodConnect</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="/index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="/find-donors.html" class="nav-link"><i class="fa-solid fa-magnifying-glass"></i> Donors</a>
+      <a href="/requests.html" class="nav-link"><i class="fa-solid fa-droplet"></i> Requests</a>
+    </div>
+    <div class="nav-actions" id="nav-actions">
+      <div id="nav-user" class="d-flex align-center gap-3" style="display:none">
+        <div class="nav-user-info">
+          <div class="nav-avatar" id="nav-avatar">A</div>
+          <span id="nav-user-name">Admin</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="Navbar.logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+      <div id="nav-guest" style="display:none"></div>
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div style="padding-top: var(--nav-h); min-height: 100vh; background: var(--bg);">
+  <div class="db-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section-label">NAVIGATION</div>
+      <a href="#overview"    class="sidebar-link active" onclick="showSection('overview')"><i class="fa-solid fa-gauge-high"></i> Overview</a>
+      <a href="#users"       class="sidebar-link"        onclick="showSection('users')"><i class="fa-solid fa-users"></i> All Users</a>
+      <a href="#donors"      class="sidebar-link"        onclick="showSection('donors')"><i class="fa-solid fa-syringe"></i> Donors</a>
+      <a href="#requests"    class="sidebar-link"        onclick="showSection('requests')"><i class="fa-solid fa-droplet"></i> Blood Requests</a>
+      <div class="sidebar-section-label" style="margin-top:20px">EXTERNAL</div>
+      <a href="/index.html"       class="sidebar-link"><i class="fa-solid fa-globe"></i> Public Site</a>
+      <a href="/api/health"       class="sidebar-link" target="_blank"><i class="fa-solid fa-heart-pulse"></i> Health Check</a>
+      <a href="/find-donors.html" class="sidebar-link"><i class="fa-solid fa-magnifying-glass"></i> Find Donors</a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="db-content">
+
+      <!-- ====== OVERVIEW ====== -->
+      <section id="section-overview">
+        <div style="margin-bottom:28px">
+          <h1 class="dashboard-title">Admin Dashboard</h1>
+          <p class="dashboard-subtitle" id="admin-greeting">Welcome, Administrator. Live metrics from Railway Cloud MySQL.</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-row" style="grid-template-columns: repeat(auto-fill, minmax(190px,1fr)); margin-bottom:32px">
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="fa-solid fa-users"></i></div>
+            <div><div class="stat-value" id="s-total-users">—</div><div class="stat-label">Total Users</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fa-solid fa-syringe"></i></div>
+            <div><div class="stat-value" id="s-total-donors">—</div><div class="stat-label">Donors</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fa-solid fa-hospital-user"></i></div>
+            <div><div class="stat-value" id="s-total-requesters">—</div><div class="stat-label">Requesters</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon navy"><i class="fa-solid fa-droplet"></i></div>
+            <div><div class="stat-value" id="s-total-requests">—</div><div class="stat-label">Total Requests</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber"><i class="fa-solid fa-clock"></i></div>
+            <div><div class="stat-value" id="s-pending">—</div><div class="stat-label">Pending</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+            <div><div class="stat-value" id="s-fulfilled">—</div><div class="stat-label">Fulfilled</div></div>
+          </div>
+        </div>
+
+        <!-- Recent Requests -->
+        <div class="card">
+          <div class="card-header">
+            <h2 style="font-size:1.1rem; font-weight:700">Recent Blood Requests</h2>
+            <button class="btn btn-outline btn-sm" onclick="showSection('requests')">View All <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-container" style="border:none; border-radius:0">
+              <table class="data-table" id="overview-requests-table">
+                <thead>
+                  <tr>
+                    <th>Patient</th><th>Blood Group</th><th>Hospital / City</th><th>Urgency</th><th>Status</th><th>Date</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-requests-tbody">
+                  <tr><td colspan="6" style="text-align:center; padding:28px"><div class="spinner" style="margin:0 auto"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== USERS ====== -->
+      <section id="section-users" style="display:none">
+        <div class="d-flex justify-between align-center mb-6 flex-wrap gap-2">
+          <div>
+            <h1 class="dashboard-title">All Users</h1>
+            <p class="dashboard-subtitle">Manage all registered users</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="loadUsers()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:0">
+            <div class="table-container" style="border:none; border-radius:0">
+              <table class="data-table" id="users-table">
+                <thead>
+                  <tr><th>#</th><th>Name</th><th>Email</th><th>Role</th><th>City</th><th>Joined</th><th>Status</th><th>Action</th></tr>
+                </thead>
+                <tbody id="users-tbody">
+                  <tr><td colspan="8" style="text-align:center; padding:28px"><div class="spinner" style="margin:0 auto"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== DONORS ====== -->
+      <section id="section-donors" style="display:none">
+        <div class="d-flex justify-between align-center mb-6 flex-wrap gap-2">
+          <div>
+            <h1 class="dashboard-title">Blood Donors</h1>
+            <p class="dashboard-subtitle">All registered donor profiles</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="loadDonors()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:0">
+            <div class="table-container" style="border:none; border-radius:0">
+              <table class="data-table">
+                <thead>
+                  <tr><th>#</th><th>Name</th><th>Blood Group</th><th>City / State</th><th>Last Donation</th><th>Total</th><th>Available</th></tr>
+                </thead>
+                <tbody id="donors-tbody">
+                  <tr><td colspan="7" style="text-align:center; padding:28px"><div class="spinner" style="margin:0 auto"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== REQUESTS ====== -->
+      <section id="section-requests" style="display:none">
+        <div class="d-flex justify-between align-center mb-6 flex-wrap gap-2">
+          <div>
+            <h1 class="dashboard-title">Blood Requests</h1>
+            <p class="dashboard-subtitle">All submitted blood requests</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="loadAllRequests()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:0">
+            <div class="table-container" style="border:none; border-radius:0">
+              <table class="data-table">
+                <thead>
+                  <tr><th>ID</th><th>Patient</th><th>Blood Group</th><th>Hospital</th><th>Urgency</th><th>Status</th><th>Requested</th><th>Action</th></tr>
+                </thead>
+                <tbody id="requests-tbody">
+                  <tr><td colspan="8" style="text-align:center; padding:28px"><div class="spinner" style="margin:0 auto"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /db-content -->
+  </div><!-- /db-wrapper -->
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal-overlay" id="status-modal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-header">
+      <h3 class="modal-title">Update Request Status</h3>
+      <button class="modal-close" data-modal-close="status-modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--text-secondary); font-size:.875rem; margin-bottom:18px">Change the status of Request <strong id="modal-request-id">#—</strong></p>
+      <div class="form-group">
+        <label class="form-label">New Status</label>
+        <select class="form-control" id="modal-new-status">
+          <option value="PENDING">Pending</option>
+          <option value="ACCEPTED">Accepted</option>
+          <option value="FULFILLED">Fulfilled</option>
+          <option value="CANCELLED">Cancelled</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" data-modal-close="status-modal">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmStatusUpdate()"><i class="fa-solid fa-check"></i> Update Status</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<script src="/js/app.js"></script>
+<script>
+  let activeRequestId = null;
+
+  // Auth guard
+  document.addEventListener('DOMContentLoaded', async () => {
+    const user = Session.requireAdmin();
+    if (!user) return;
+    document.getElementById('admin-greeting').textContent = `Welcome, ${user.fullName}! Live data from Railway Cloud MySQL.`;
+    await loadStats();
+    await loadOverviewRequests();
+  });
+
+  function showSection(name) {
+    ['overview','users','donors','requests'].forEach(s => {
+      const sec = document.getElementById(`section-${s}`);
+      if (sec) sec.style.display = (s === name) ? '' : 'none';
+    });
+
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    const activeLink = document.querySelector(`.sidebar-link[onclick*="'${name}'"]`);
+    if (activeLink) activeLink.classList.add('active');
+
+    if (name === 'users')    loadUsers();
+    if (name === 'donors')   loadDonors();
+    if (name === 'requests') loadAllRequests();
+  }
+
+  async function loadStats() {
+    try {
+      const res = await API.getAdminStats();
+      if (res.success && res.data) {
+        const d = res.data;
+        const setVal = (id, v) => {
+          const el = document.getElementById(id);
+          if (el) { el.textContent = '0'; animateCounter(el, v); }
+        };
+        setVal('s-total-users', d.totalUsers);
+        setVal('s-total-donors', d.totalDonors);
+        setVal('s-total-requesters', d.totalRequesters);
+        setVal('s-total-requests', d.totalRequests);
+        setVal('s-pending', d.pendingRequests);
+        setVal('s-fulfilled', d.fulfilledRequests);
+      }
+    } catch(e) {
+      Toast.error('Could not load stats: ' + e.message);
+    }
+  }
+
+  async function loadOverviewRequests() {
+    const tbody = document.getElementById('overview-requests-tbody');
+    try {
+      const res = await API.getAllRequests();
+      const rows = (res.data || []).slice(0, 8);
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:28px; color:var(--text-muted)">No requests in database</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = rows.map(r => `<tr>
+        <td><strong>${r.patientName}</strong></td>
+        <td>${bloodGroupBadge(r.bloodGroup)}</td>
+        <td>${r.hospitalName}, ${r.city}</td>
+        <td>${urgencyBadge(r.urgencyLevel)}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td class="text-muted font-xs">${timeAgo(r.createdAt)}</td>
+      </tr>`).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger); padding:20px">Error: ${e.message}</td></tr>`;
+    }
+  }
+
+  async function loadUsers() {
+    const tbody = document.getElementById('users-tbody');
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px"><div class="spinner" style="margin:0 auto"></div></td></tr>`;
+    try {
+      const res = await API.getAllUsers();
+      const users = res.data || [];
+      tbody.innerHTML = users.map((u, i) => `<tr>
+        <td class="text-muted">${i+1}</td>
+        <td><strong>${u.fullName}</strong></td>
+        <td class="font-xs text-secondary">${u.email}</td>
+        <td><span class="status-badge ${u.role === 'ADMIN' ? 'ACCEPTED' : u.role === 'DONOR' ? 'FULFILLED' : 'PENDING'}" style="font-size:.7rem">${u.role}</span></td>
+        <td>${u.city}, ${u.state}</td>
+        <td class="font-xs text-muted">${formatDate(u.createdAt)}</td>
+        <td><span class="availability-badge ${u.active ? 'available' : 'unavailable'}">${u.active ? 'Active' : 'Inactive'}</span></td>
+        <td>
+          <button class="btn btn-sm ${u.active ? 'btn-danger' : 'btn-success'}" onclick="toggleUser(${u.id})" style="font-size:.75rem">
+            <i class="fa-solid fa-power-off"></i> ${u.active ? 'Deactivate' : 'Activate'}
+          </button>
+        </td>
+      </tr>`).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--danger); padding:20px">Error: ${e.message}</td></tr>`;
+    }
+  }
+
+  async function loadDonors() {
+    const tbody = document.getElementById('donors-tbody');
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:28px"><div class="spinner" style="margin:0 auto"></div></td></tr>`;
+    try {
+      const res = await API.getAllDonors();
+      const donors = res.data || [];
+      tbody.innerHTML = donors.map((d, i) => `<tr>
+        <td class="text-muted">${i+1}</td>
+        <td><strong>${d.fullName}</strong></td>
+        <td>${bloodGroupBadge(d.bloodGroup)}</td>
+        <td>${d.city}, ${d.state}</td>
+        <td class="font-xs">${formatDate(d.lastDonationDate)}</td>
+        <td class="font-semibold" style="color:var(--primary)">${d.totalDonations}</td>
+        <td>${availabilityBadge(d.available)}</td>
+      </tr>`).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger); padding:20px">Error: ${e.message}</td></tr>`;
+    }
+  }
+
+  async function loadAllRequests() {
+    const tbody = document.getElementById('requests-tbody');
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:28px"><div class="spinner" style="margin:0 auto"></div></td></tr>`;
+    try {
+      const res = await API.getAllRequests();
+      const requests = res.data || [];
+      tbody.innerHTML = requests.map(r => `<tr>
+        <td class="text-muted">#${r.id}</td>
+        <td><strong>${r.patientName}</strong></td>
+        <td>${bloodGroupBadge(r.bloodGroup)}</td>
+        <td style="font-size:.8rem">${r.hospitalName}, ${r.city}</td>
+        <td>${urgencyBadge(r.urgencyLevel)}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td class="font-xs text-muted">${timeAgo(r.createdAt)}</td>
+        <td>
+          <button class="btn btn-sm btn-outline" style="font-size:.75rem" onclick="openStatusModal(${r.id}, '${r.status}')">
+            <i class="fa-solid fa-pen"></i> Status
+          </button>
+        </td>
+      </tr>`).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--danger); padding:20px">Error: ${e.message}</td></tr>`;
+    }
+  }
+
+  async function toggleUser(userId) {
+    try {
+      await API.toggleUserStatus(userId);
+      Toast.success('User status updated successfully');
+      loadUsers();
+    } catch(e) {
+      Toast.error(e.message);
+    }
+  }
+
+  function openStatusModal(requestId, currentStatus) {
+    activeRequestId = requestId;
+    document.getElementById('modal-request-id').textContent = '#' + requestId;
+    document.getElementById('modal-new-status').value = currentStatus;
+    Modal.open('status-modal');
+  }
+
+  async function confirmStatusUpdate() {
+    if (!activeRequestId) return;
+    const newStatus = document.getElementById('modal-new-status').value;
+    try {
+      await API.updateRequestStatus(activeRequestId, { status: newStatus });
+      Toast.success(`Request #${activeRequestId} status updated to ${newStatus}`);
+      Modal.close('status-modal');
+      loadAllRequests();
+      loadStats();
+    } catch(e) {
+      Toast.error(e.message);
+    }
+  }
+
+  // Handle hash navigation
+  document.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#','');
+    if (['users','donors','requests'].includes(hash)) showSection(hash);
+  });
+</script>
+</body>
+</html>

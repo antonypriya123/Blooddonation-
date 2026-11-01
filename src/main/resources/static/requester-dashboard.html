@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Requester Dashboard – BloodConnect</title>
+  <meta name="description" content="BloodConnect requester dashboard — submit blood requests, track their status, and manage all your requests."/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩸</text></svg>"/>
+  <link rel="stylesheet" href="/css/styles.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/index.html" class="nav-brand">
+      <div class="nav-brand-icon">🩸</div>
+      <span class="nav-brand-name">BloodConnect</span>
+    </a>
+    <div class="nav-links" id="nav-links">
+      <a href="/index.html" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="/find-donors.html" class="nav-link"><i class="fa-solid fa-magnifying-glass"></i> Find Donors</a>
+      <a href="/requests.html" class="nav-link"><i class="fa-solid fa-droplet"></i> Requests</a>
+    </div>
+    <div class="nav-actions" id="nav-actions">
+      <div id="nav-user" class="d-flex align-center gap-3" style="display:none">
+        <div class="nav-user-info">
+          <div class="nav-avatar" id="nav-avatar">R</div>
+          <span id="nav-user-name">User</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="Navbar.logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+      <div id="nav-guest" style="display:none"></div>
+    </div>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div style="padding-top: var(--nav-h); min-height: 100vh; background: var(--bg);">
+  <div class="db-wrapper">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section-label">MY MENU</div>
+      <a class="sidebar-link active" onclick="showSection('overview')"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      <a class="sidebar-link" onclick="showSection('my-requests')"><i class="fa-solid fa-list"></i> My Requests</a>
+      <a class="sidebar-link" onclick="showSection('new-request')"><i class="fa-solid fa-plus-circle"></i> New Request</a>
+      <div class="sidebar-section-label" style="margin-top:20px">QUICK LINKS</div>
+      <a href="/find-donors.html" class="sidebar-link"><i class="fa-solid fa-magnifying-glass"></i> Find Donors</a>
+      <a href="/requests.html" class="sidebar-link"><i class="fa-solid fa-globe"></i> All Requests</a>
+    </aside>
+
+    <div class="db-content">
+
+      <!-- ====== OVERVIEW ====== -->
+      <section id="section-overview">
+        <div style="background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%); border-radius: var(--radius-xl); padding: 32px; color: white; margin-bottom: 28px;">
+          <p style="color:rgba(255,255,255,.55); font-size:.78rem; font-weight:700; letter-spacing:.08em; margin-bottom:8px">REQUESTER DASHBOARD</p>
+          <h1 style="font-size:1.8rem; font-weight:800; margin-bottom:6px" id="req-greeting">Welcome back!</h1>
+          <p style="color:rgba(255,255,255,.6); font-size:.9rem">Manage your blood requests and track their status in real time.</p>
+          <div style="margin-top:24px">
+            <button class="btn" style="background:white; color:var(--primary); font-weight:700" onclick="showSection('new-request')">
+              <i class="fa-solid fa-plus"></i> Submit New Blood Request
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row" style="margin-bottom:28px">
+          <div class="stat-card">
+            <div class="stat-icon navy"><i class="fa-solid fa-clipboard-list"></i></div>
+            <div><div class="stat-value" id="rs-total">—</div><div class="stat-label">Total Requests</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber"><i class="fa-solid fa-clock"></i></div>
+            <div><div class="stat-value" id="rs-pending">—</div><div class="stat-label">Pending</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fa-solid fa-handshake"></i></div>
+            <div><div class="stat-value" id="rs-accepted">—</div><div class="stat-label">Accepted</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fa-solid fa-circle-check"></i></div>
+            <div><div class="stat-value" id="rs-fulfilled">—</div><div class="stat-label">Fulfilled</div></div>
+          </div>
+        </div>
+
+        <!-- Recent Requests -->
+        <div class="card">
+          <div class="card-header">
+            <h2 style="font-size:1.1rem; font-weight:700">My Recent Requests</h2>
+            <button class="btn btn-outline btn-sm" onclick="showSection('my-requests')">View All</button>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-container" style="border:none; border-radius:0">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Patient</th><th>Blood Group</th><th>Hospital</th><th>Urgency</th><th>Status</th><th>Action</th></tr>
+                </thead>
+                <tbody id="overview-tbody">
+                  <tr><td colspan="6" style="text-align:center; padding:24px"><div class="spinner" style="margin:0 auto"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====== MY REQUESTS ====== -->
+      <section id="section-my-requests" style="display:none">
+        <div class="d-flex justify-between align-center mb-6 flex-wrap gap-2">
+          <div>
+            <h1 class="dashboard-title">My Blood Requests</h1>
+            <p class="dashboard-subtitle">All blood requests you have submitted</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="showSection('new-request')"><i class="fa-solid fa-plus"></i> New Request</button>
+        </div>
+
+        <div id="my-requests-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px,1fr)); gap:20px">
+          <div class="loading-overlay" style="grid-column:1/-1"><div class="spinner"></div><p>Loading your requests...</p></div>
+        </div>
+      </section>
+
+      <!-- ====== NEW REQUEST FORM ====== -->
+      <section id="section-new-request" style="display:none">
+        <div class="mb-6">
+          <h1 class="dashboard-title">Submit Blood Request</h1>
+          <p class="dashboard-subtitle">Fill in the details below to broadcast a blood request to available donors.</p>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <form id="req-form">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
+                <div class="form-group">
+                  <label class="form-label">Patient Name <span class="required">*</span></label>
+                  <input type="text" class="form-control" id="nreq-patient" placeholder="Patient's full name" required/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Required Blood Group <span class="required">*</span></label>
+                  <select class="form-control" id="nreq-blood-group" required>
+                    <option value="">Select blood group</option>
+                    <option value="A+">A+</option><option value="A-">A-</option>
+                    <option value="B+">B+</option><option value="B-">B-</option>
+                    <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                    <option value="O+">O+</option><option value="O-">O-</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Units Required <span class="required">*</span></label>
+                  <input type="number" class="form-control" id="nreq-units" min="1" max="20" value="1" required/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Urgency Level <span class="required">*</span></label>
+                  <select class="form-control" id="nreq-urgency" required>
+                    <option value="MEDIUM">Medium — Standard Timeline</option>
+                    <option value="LOW">Low — Can Wait a Few Days</option>
+                    <option value="HIGH">High — Needed Soon</option>
+                    <option value="CRITICAL">Critical — Emergency!</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Hospital Name <span class="required">*</span></label>
+                <input type="text" class="form-control" id="nreq-hospital-name" placeholder="Hospital or clinic" required/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Hospital Address <span class="required">*</span></label>
+                <input type="text" class="form-control" id="nreq-hospital-address" placeholder="Street address, ward/floor" required/>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
+                <div class="form-group">
+                  <label class="form-label">City <span class="required">*</span></label>
+                  <input type="text" class="form-control" id="nreq-city" required/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">State <span class="required">*</span></label>
+                  <input type="text" class="form-control" id="nreq-state" required/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Contact Number <span class="required">*</span></label>
+                  <input type="tel" class="form-control" id="nreq-contact" required/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Required By Date <span class="required">*</span></label>
+                  <input type="date" class="form-control" id="nreq-date" required/>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Additional Information</label>
+                <textarea class="form-control" id="nreq-additional" rows="3" placeholder="Patient condition, reason for blood requirement, any other details..."></textarea>
+              </div>
+              <div id="req-form-error" style="display:none; background:var(--danger-soft); color:var(--danger); padding:12px 16px; border-radius:var(--radius); font-size:.875rem; margin-bottom:12px"></div>
+              <div class="d-flex gap-3">
+                <button type="submit" class="btn btn-primary" id="btn-submit-req"><i class="fa-solid fa-paper-plane"></i> Submit & Broadcast Request</button>
+                <button type="reset" class="btn btn-outline">Reset Form</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<script src="/js/app.js"></script>
+<script>
+  let reqUser = null;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    reqUser = Session.requireRequester();
+    if (!reqUser) return;
+    document.getElementById('req-greeting').textContent = `Welcome back, ${reqUser.fullName.split(' ')[0]}!`;
+    await loadMyRequests();
+    await loadOverviewTable();
+    document.getElementById('nreq-date').min = new Date().toISOString().split('T')[0];
+  });
+
+  async function loadMyRequests() {
+    try {
+      const res = await API.getMyRequests();
+      const requests = res.data || [];
+
+      // Update stats
+      animateCounter(document.getElementById('rs-total'), requests.length);
+      animateCounter(document.getElementById('rs-pending'),  requests.filter(r => r.status === 'PENDING').length);
+      animateCounter(document.getElementById('rs-accepted'), requests.filter(r => r.status === 'ACCEPTED').length);
+      animateCounter(document.getElementById('rs-fulfilled'), requests.filter(r => r.status === 'FULFILLED').length);
+
+      // Load grid
+      const grid = document.getElementById('my-requests-grid');
+      if (!requests.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">📋</div><h3>No Requests Yet</h3><p>Submit your first blood request to get started.</p><button class="btn btn-primary mt-4" onclick="showSection('new-request')"><i class="fa-solid fa-plus"></i> New Request</button></div>`;
+      } else {
+        grid.innerHTML = requests.map(r => `
+          <div class="request-card urgency-${r.urgencyLevel}">
+            <div class="d-flex justify-between align-center mb-3">
+              ${bloodGroupBadge(r.bloodGroup)}
+              <div>${urgencyBadge(r.urgencyLevel)}</div>
+            </div>
+            <h3 style="font-size:1rem; font-weight:700; margin-bottom:4px">${r.patientName}</h3>
+            <p class="font-xs text-muted mb-2"><i class="fa-solid fa-hospital"></i> ${r.hospitalName}</p>
+            <p class="font-xs text-muted mb-3"><i class="fa-solid fa-location-dot"></i> ${r.city}, ${r.state}</p>
+            <div style="display:flex; gap:12px; font-size:.78rem; color:var(--text-secondary); margin-bottom:14px; flex-wrap:wrap">
+              <span><i class="fa-solid fa-droplet"></i> ${r.unitsRequired} unit(s)</span>
+              <span><i class="fa-regular fa-calendar"></i> ${formatDate(r.requiredDate)}</span>
+            </div>
+            <div class="d-flex justify-between align-center">
+              ${statusBadge(r.status)}
+              ${r.status === 'PENDING' ? `<button class="btn btn-danger btn-sm" onclick="cancelReq(${r.id})"><i class="fa-solid fa-ban"></i> Cancel</button>` : ''}
+            </div>
+            ${r.assignedDonorName ? `<div class="mt-3" style="background:var(--success-soft); border-radius:var(--radius); padding:10px 12px; font-size:.8rem; color:var(--success)"><i class="fa-solid fa-user-check"></i> Assigned Donor: <strong>${r.assignedDonorName}</strong></div>` : ''}
+          </div>`).join('');
+      }
+    } catch(e) {
+      Toast.error('Could not load requests: ' + e.message);
+    }
+  }
+
+  async function loadOverviewTable() {
+    const tbody = document.getElementById('overview-tbody');
+    try {
+      const res = await API.getMyRequests();
+      const rows = (res.data || []).slice(0, 5);
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:28px; color:var(--text-muted)">No requests yet</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = rows.map(r => `<tr>
+        <td><strong>${r.patientName}</strong></td>
+        <td>${bloodGroupBadge(r.bloodGroup)}</td>
+        <td class="font-xs text-secondary">${r.hospitalName}, ${r.city}</td>
+        <td>${urgencyBadge(r.urgencyLevel)}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td>
+          ${r.status === 'PENDING' ? `<button class="btn btn-danger btn-sm" onclick="cancelReq(${r.id})" style="font-size:.75rem"><i class="fa-solid fa-ban"></i> Cancel</button>` : '<span class="text-muted font-xs">—</span>'}
+        </td>
+      </tr>`).join('');
+    } catch(e) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger); padding:20px">Error: ${e.message}</td></tr>`;
+    }
+  }
+
+  async function cancelReq(id) {
+    if (!confirm('Are you sure you want to cancel this blood request?')) return;
+    try {
+      await API.cancelRequest(id);
+      Toast.success('Request cancelled');
+      await loadMyRequests();
+      await loadOverviewTable();
+    } catch(e) {
+      Toast.error(e.message);
+    }
+  }
+
+  document.getElementById('req-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errDiv = document.getElementById('req-form-error');
+    errDiv.style.display = 'none';
+    const btn = document.getElementById('btn-submit-req');
+
+    const payload = {
+      patientName:     document.getElementById('nreq-patient').value.trim(),
+      bloodGroup:      document.getElementById('nreq-blood-group').value,
+      unitsRequired:   parseInt(document.getElementById('nreq-units').value) || 1,
+      urgencyLevel:    document.getElementById('nreq-urgency').value,
+      hospitalName:    document.getElementById('nreq-hospital-name').value.trim(),
+      hospitalAddress: document.getElementById('nreq-hospital-address').value.trim(),
+      city:            document.getElementById('nreq-city').value.trim(),
+      state:           document.getElementById('nreq-state').value.trim(),
+      contactNumber:   document.getElementById('nreq-contact').value.trim(),
+      requiredDate:    document.getElementById('nreq-date').value,
+      additionalInfo:  document.getElementById('nreq-additional').value.trim()
+    };
+
+    if (!payload.patientName || !payload.bloodGroup || !payload.hospitalName || !payload.city || !payload.state || !payload.contactNumber || !payload.requiredDate) {
+      errDiv.textContent = 'Please fill in all required fields.';
+      errDiv.style.display = 'block';
+      return;
+    }
+
+    setLoading(btn, true, 'Submitting...');
+    try {
+      await API.createRequest(payload);
+      Toast.success('Blood request submitted and broadcasted to donors! 🔔');
+      e.target.reset();
+      showSection('my-requests');
+      loadMyRequests();
+    } catch(err) {
+      errDiv.textContent = err.message || 'Submission failed';
+      errDiv.style.display = 'block';
+    } finally {
+      setLoading(btn, false);
+    }
+  });
+
+  function showSection(name) {
+    ['overview','my-requests','new-request'].forEach(s => {
+      const el = document.getElementById(`section-${s.replace('-','_') === 'section_overview' ? 'overview' : `section-${s}`}`);
+      const secEl = document.getElementById(`section-${s}`);
+      if (secEl) secEl.style.display = s === name ? '' : 'none';
+    });
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    const links = document.querySelectorAll('.sidebar-link');
+    links.forEach(l => { if (l.getAttribute('onclick') && l.getAttribute('onclick').includes(`'${name}'`)) l.classList.add('active'); });
+    if (name === 'my-requests') loadMyRequests();
+  }
+</script>
+</body>
+</html>

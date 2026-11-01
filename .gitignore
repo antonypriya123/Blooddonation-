@@ -1,0 +1,54 @@
+# Compiled class file
+target/
+*.class
+
+# Log file
+*.log
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Virtual Machine Crash Logs
+hs_err_pid*
+replay_pid*
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+apache-maven-*/
+
+# Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# IntelliJ IDEA
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Visual Studio Code
+.vscode/
+
+# Environment Variables & Secrets (CRITICAL)
+.env
+.env.local
+*.secret
+*.pem
+*.key
+
+# OS Files
+.DS_Store
+Thumbs.db

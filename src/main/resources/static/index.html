@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BloodConnect – Donate Blood, Save Lives</title>
+  <meta name="description" content="BloodConnect connects blood donors with people in need. Find verified donors, submit blood requests, and save lives with our secure platform."/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩸</text></svg>"/>
+  <link rel="stylesheet" href="/css/styles.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/index.html" class="nav-brand">
+      <div class="nav-brand-icon">🩸</div>
+      <span class="nav-brand-name">BloodConnect</span>
+    </a>
+
+    <div class="nav-links" id="nav-links">
+      <a href="/index.html" class="nav-link active"><i class="fa-solid fa-house"></i> Home</a>
+      <a href="/find-donors.html" class="nav-link"><i class="fa-solid fa-magnifying-glass"></i> Find Donors</a>
+      <a href="/requests.html" class="nav-link"><i class="fa-solid fa-droplet"></i> Blood Requests</a>
+      <a href="#about" class="nav-link" onclick="scrollToSection('about')"><i class="fa-solid fa-circle-info"></i> About</a>
+    </div>
+
+    <div class="nav-actions" id="nav-actions">
+      <!-- Guest -->
+      <div id="nav-guest" class="d-flex align-center gap-2" style="display:none">
+        <a href="/login.html" class="btn btn-ghost btn-sm" id="btn-login">Log In</a>
+        <a href="/register.html" class="btn btn-primary btn-sm" id="btn-register">Register</a>
+      </div>
+      <!-- Logged In -->
+      <div id="nav-user" class="d-flex align-center gap-3" style="display:none">
+        <a href="#" id="nav-dashboard-link" class="btn btn-ghost btn-sm"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <div class="nav-user-info">
+          <div class="nav-avatar" id="nav-avatar">U</div>
+          <span id="nav-user-name">User</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="Navbar.logout()" id="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+      </div>
+    </div>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="home">
+  <div class="hero-content">
+    <div class="hero-text">
+      <div class="hero-eyebrow">
+        <i class="fa-solid fa-heart-pulse"></i> Real-time Donor Network
+      </div>
+      <h1 class="hero-title">
+        Donate Blood,<br/><span>Save Lives</span>
+      </h1>
+      <p class="hero-subtitle">
+        Connect with verified blood donors in your area instantly. Every donation can make a life-or-death difference. Join the BloodConnect community today.
+      </p>
+      <div class="hero-cta">
+        <a href="/find-donors.html" class="btn btn-primary btn-xl" id="btn-find-blood">
+          <i class="fa-solid fa-magnifying-glass"></i> Find Blood Now
+        </a>
+        <a href="/register.html" class="btn btn-ghost btn-xl" id="btn-become-donor">
+          <i class="fa-solid fa-hand-holding-heart"></i> Become a Donor
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div>
+          <div class="hero-stat-number" id="stat-total-donors" data-count="0">0</div>
+          <div class="hero-stat-label">Registered Donors</div>
+        </div>
+        <div>
+          <div class="hero-stat-number" id="stat-fulfilled-requests" data-count="0">0</div>
+          <div class="hero-stat-label">Lives Saved</div>
+        </div>
+        <div>
+          <div class="hero-stat-number" id="stat-available-donors" data-count="0">0</div>
+          <div class="hero-stat-label">Available Now</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="hero-drop">
+        <div class="drop-body">
+          <div class="drop-icon">🩸</div>
+        </div>
+      </div>
+      <div class="floating-card">
+        <span class="floating-card-icon">❤️</span>
+        <div class="floating-card-text">
+          <strong>O+ Available</strong>
+          <span>2 donors nearby</span>
+        </div>
+      </div>
+      <div class="floating-card">
+        <span class="floating-card-icon">🏥</span>
+        <div class="floating-card-text">
+          <strong>Request Fulfilled</strong>
+          <span>A- matched in 12 min</span>
+        </div>
+      </div>
+      <div class="floating-card">
+        <span class="floating-card-icon">⚡</span>
+        <div class="floating-card-text">
+          <strong>Critical Alert</strong>
+          <span>AB- needed urgently</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== LIVE STATS STRIP ===== -->
+<section class="stats-strip" id="stats">
+  <div class="stats-grid" id="stats-grid">
+    <div class="reveal">
+      <div class="stats-item-icon">🩸</div>
+      <div class="stats-item-number" id="stat-total-users" data-count="0">0</div>
+      <div class="stats-item-label">Registered Members</div>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <div class="stats-item-icon">💉</div>
+      <div class="stats-item-number" id="stat-total-requests" data-count="0">0</div>
+      <div class="stats-item-label">Blood Requests</div>
+    </div>
+    <div class="reveal reveal-delay-2">
+      <div class="stats-item-icon">✅</div>
+      <div class="stats-item-number" id="stat-fulfilled-requests-strip" data-count="0">0</div>
+      <div class="stats-item-label">Requests Fulfilled</div>
+    </div>
+    <div class="reveal reveal-delay-3">
+      <div class="stats-item-icon">📍</div>
+      <div class="stats-item-number" id="stat-pending-requests" data-count="0">0</div>
+      <div class="stats-item-label">Pending Requests</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section" id="how-it-works" style="background: var(--bg);">
+  <div class="container">
+    <div class="section-center reveal">
+      <p class="section-eyebrow">Simple Process</p>
+      <h2 class="section-title">How BloodConnect Works</h2>
+      <p class="section-subtitle">Three simple steps to connect donors with those in need — saving lives made simple.</p>
+    </div>
+
+    <div class="steps-grid" style="margin-top:60px">
+      <div class="step-card reveal">
+        <div class="step-number">1</div>
+        <div class="step-icon">📝</div>
+        <h3 class="step-title">Register Your Profile</h3>
+        <p class="step-desc">Create a free account as a blood donor or as someone seeking blood. Secure, private, and takes under 2 minutes.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-number">2</div>
+        <div class="step-icon">🔍</div>
+        <h3 class="step-title">Search or Request</h3>
+        <p class="step-desc">Search for available donors by blood group and location, or submit a blood request that gets broadcasted to compatible donors immediately.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-number">3</div>
+        <div class="step-icon">🤝</div>
+        <h3 class="step-title">Connect & Donate</h3>
+        <p class="step-desc">Donors receive real-time alerts, accept the request, and coordinate directly with hospitals to save lives. Every drop matters.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-number">4</div>
+        <div class="step-icon">💪</div>
+        <h3 class="step-title">Track Your Impact</h3>
+        <p class="step-desc">View your donation history, track request statuses, and see the real difference you've made in your community.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== EMERGENCY REQUESTS ===== -->
+<section class="section section-sm" id="emergency" style="background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);">
+  <div class="container">
+    <div class="d-flex justify-between align-center reveal mb-8">
+      <div>
+        <p class="section-eyebrow"><i class="fa-solid fa-triangle-exclamation"></i> Urgent Need</p>
+        <h2 class="section-title" style="margin-bottom:0">Emergency Blood Requests</h2>
+      </div>
+      <a href="/requests.html" class="btn btn-outline" id="btn-view-all-requests">View All Requests <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div id="emergency-requests-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px;">
+      <!-- Loaded dynamically -->
+      <div class="loading-overlay" style="grid-column: 1/-1;">
+        <div class="spinner"></div>
+        <p>Loading emergency requests from database...</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== WHY BLOODCONNECT ===== -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="section-center reveal">
+      <p class="section-eyebrow">Why Choose Us</p>
+      <h2 class="section-title">Trusted Blood Donation Platform</h2>
+      <p class="section-subtitle">We prioritize speed, security, and reliability — because when lives are on the line, every second matters.</p>
+    </div>
+    <div class="features-grid" style="margin-top:52px">
+      <div class="feature-card reveal">
+        <div class="feature-icon">⚡</div>
+        <h3 style="margin-bottom:10px; font-size:1.1rem;">Real-Time Matching</h3>
+        <p style="color: var(--text-secondary); font-size:.875rem; line-height:1.7">Instant notifications to compatible donors the moment a blood request is submitted. No delays when time is critical.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">🔒</div>
+        <h3 style="margin-bottom:10px; font-size:1.1rem;">Secure & Private</h3>
+        <p style="color: var(--text-secondary); font-size:.875rem; line-height:1.7">Bank-grade encryption, BCrypt password hashing, and role-based access control protect every user's data.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">🏥</div>
+        <h3 style="margin-bottom:10px; font-size:1.1rem;">Hospital Integration</h3>
+        <p style="color: var(--text-secondary); font-size:.875rem; line-height:1.7">Include complete hospital information with every request. Donors and administrators coordinate directly for maximum efficiency.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon">📊</div>
+        <h3 style="margin-bottom:10px; font-size:1.1rem;">Live Admin Dashboard</h3>
+        <p style="color: var(--text-secondary); font-size:.875rem; line-height:1.7">Administrators monitor all requests, manage users, and view live system statistics — all powered by real database data.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">🌍</div>
+        <h3 style="margin-bottom:10px; font-size:1.1rem;">Cloud-Powered</h3>
+        <p style="color: var(--text-secondary); font-size:.875rem; line-height:1.7">Backed by Railway Cloud MySQL — 99.9% uptime, auto-scaling, and zero data loss. Your data is always safe and accessible.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">📱</div>
+        <h3 style="margin-bottom:10px; font-size:1.1rem;">Mobile-Friendly</h3>
+        <p style="color: var(--text-secondary); font-size:.875rem; line-height:1.7">Fully responsive design works beautifully on phones, tablets and desktops. Access BloodConnect from any device, anywhere.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA BANNER ===== -->
+<section class="section section-sm" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: 80px 24px;">
+  <div class="container text-center">
+    <div class="reveal">
+      <div style="font-size:3.5rem; margin-bottom:20px">💝</div>
+      <h2 style="font-size: 2.5rem; color: white; font-weight: 900; margin-bottom: 16px; letter-spacing: -1px;">Ready to Save a Life Today?</h2>
+      <p style="color: rgba(255,255,255,.75); font-size:1.1rem; max-width:500px; margin:0 auto 36px; line-height:1.7">Join thousands of heroes who donate blood and help families in their most desperate moments. Your one action can be someone's second chance at life.</p>
+      <div class="d-flex justify-center gap-4 flex-wrap">
+        <a href="/register.html" class="btn btn-xl" style="background:white; color:var(--primary); font-weight:800;" id="btn-cta-register">
+          <i class="fa-solid fa-heart"></i> Become a Donor
+        </a>
+        <a href="/find-donors.html" class="btn btn-xl btn-ghost" id="btn-cta-find">
+          <i class="fa-solid fa-magnifying-glass"></i> Find Blood Now
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <h3>🩸 BloodConnect</h3>
+      <p>Connecting blood donors with people in need. Powered by Spring Boot & Railway Cloud MySQL. Every donation makes a difference.</p>
+      <div style="margin-top:20px; font-size:.8rem; color: rgba(255,255,255,.3)">
+        <i class="fa-solid fa-shield-halved"></i> Medical disclaimer: Blood type matching alone does not establish medical compatibility. Final eligibility must be confirmed by qualified healthcare professionals.
+      </div>
+    </div>
+    <div class="footer-links">
+      <h4>Platform</h4>
+      <a href="/find-donors.html">Find Donors</a>
+      <a href="/requests.html">Blood Requests</a>
+      <a href="/register.html">Register</a>
+      <a href="/login.html">Login</a>
+    </div>
+    <div class="footer-links">
+      <h4>Roles</h4>
+      <a href="/register.html">Become a Donor</a>
+      <a href="/register.html">Request Blood</a>
+      <a href="/donor-dashboard.html">Donor Dashboard</a>
+      <a href="/requester-dashboard.html">Requester Dashboard</a>
+    </div>
+    <div class="footer-links">
+      <h4>System</h4>
+      <a href="/api/health" target="_blank">Health Check</a>
+      <a href="/admin-dashboard.html">Admin Panel</a>
+      <a href="#about">About</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 BloodConnect. All rights reserved.</span>
+    <span>Built with ❤️ using Spring Boot + Railway Cloud MySQL</span>
+  </div>
+</footer>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/js/app.js"></script>
+<script>
+  // Smooth scroll helper
+  function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Load live stats from backend
+  async function loadHomeStats() {
+    try {
+      const res = await API.getDashboardStats();
+      if (res.success && res.data) {
+        const d = res.data;
+        const map = {
+          'stat-total-donors': d.totalDonors,
+          'stat-fulfilled-requests': d.fulfilledRequests,
+          'stat-available-donors': d.availableDonors,
+          'stat-total-users': d.totalUsers,
+          'stat-total-requests': d.totalRequests,
+          'stat-fulfilled-requests-strip': d.fulfilledRequests,
+          'stat-pending-requests': d.pendingRequests
+        };
+        Object.entries(map).forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          if (el) { el.dataset.count = val; animateCounter(el, val); }
+        });
+      }
+    } catch (e) {
+      console.warn('Stats unavailable:', e.message);
+    }
+  }
+
+  // Load Emergency Requests
+  async function loadEmergencyRequests() {
+    const grid = document.getElementById('emergency-requests-grid');
+    try {
+      const res = await API.getEmergencyRequests();
+      if (!res.success || !res.data || !res.data.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-state-icon">✅</div>
+          <h3>No Emergency Requests</h3>
+          <p>All current blood requests are being handled. Check back soon.</p>
+        </div>`;
+        return;
+      }
+      grid.innerHTML = res.data.map(r => `
+        <div class="request-card urgency-${r.urgencyLevel}">
+          <div class="d-flex justify-between align-center mb-3">
+            ${urgencyBadge(r.urgencyLevel)}
+            ${bloodGroupBadge(r.bloodGroup)}
+          </div>
+          <h3 style="font-size:1rem; font-weight:700; margin-bottom:6px">${r.patientName}</h3>
+          <p style="font-size:.82rem; color: var(--text-secondary); margin-bottom:12px">
+            <i class="fa-solid fa-hospital"></i> ${r.hospitalName}, ${r.city}
+          </p>
+          <div style="display:flex; gap:16px; font-size:.8rem; color:var(--text-muted); margin-bottom:14px">
+            <span><i class="fa-solid fa-droplet"></i> ${r.unitsRequired} unit(s) needed</span>
+            <span><i class="fa-solid fa-calendar"></i> By ${formatDate(r.requiredDate)}</span>
+          </div>
+          <a href="/requests.html?id=${r.id}" class="btn btn-primary btn-sm w-100">
+            <i class="fa-solid fa-hand-holding-heart"></i> View & Respond
+          </a>
+        </div>
+      `).join('');
+    } catch (e) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-state-icon">⚠️</div>
+        <h3>Unable to Load Requests</h3>
+        <p>${e.message}</p>
+      </div>`;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadHomeStats();
+    loadEmergencyRequests();
+  });
+</script>
+</body>
+</html>

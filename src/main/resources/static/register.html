@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register – BloodConnect</title>
+  <meta name="description" content="Create your BloodConnect account as a blood donor or requester. Join the community saving lives every day."/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🩸</text></svg>"/>
+  <link rel="stylesheet" href="/css/styles.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    .auth-card { max-width: 620px; }
+    .role-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+    .role-option { border: 2px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: var(--transition); text-align: center; position: relative; }
+    .role-option:hover { border-color: var(--primary); background: var(--accent-soft); }
+    .role-option.selected { border-color: var(--primary); background: var(--accent-soft); box-shadow: 0 0 0 3px rgba(214,40,40,.12); }
+    .role-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .role-option .role-icon { font-size: 2rem; margin-bottom: 8px; }
+    .role-option .role-name { font-weight: 700; font-size: .9rem; }
+    .role-option .role-desc { font-size: .76rem; color: var(--text-muted); margin-top: 4px; }
+    .donor-fields { display: none; }
+    .donor-fields.visible { display: block; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:480px) { .form-row { grid-template-columns: 1fr; } .role-selector { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body class="auth-page">
+
+<div class="auth-card">
+  <div class="auth-logo">
+    <a href="/index.html" style="display:flex; width:56px; height:56px; margin:0 auto 12px; background:linear-gradient(135deg,var(--primary),var(--accent)); border-radius:var(--radius-lg); align-items:center; justify-content:center; font-size:1.6rem; box-shadow:var(--shadow-red)">🩸</a>
+    <h1 class="auth-title">Create Account</h1>
+    <p class="auth-subtitle">Join BloodConnect and start saving lives today</p>
+  </div>
+
+  <!-- Step 1: Role Selection -->
+  <div style="margin-bottom:20px">
+    <label class="form-label">Select Your Role <span class="required">*</span></label>
+    <div class="role-selector">
+      <label class="role-option" id="role-donor-option">
+        <input type="radio" name="role" value="DONOR" id="role-donor"/>
+        <div class="role-icon">💉</div>
+        <div class="role-name">Blood Donor</div>
+        <div class="role-desc">Register to donate blood and help save lives</div>
+      </label>
+      <label class="role-option" id="role-requester-option">
+        <input type="radio" name="role" value="REQUESTER" id="role-requester"/>
+        <div class="role-icon">🏥</div>
+        <div class="role-name">Blood Requester</div>
+        <div class="role-desc">Request blood for patients in need</div>
+      </label>
+    </div>
+  </div>
+
+  <form id="register-form" novalidate>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="fullName">Full Name <span class="required">*</span></label>
+        <div class="input-group">
+          <i class="fa-solid fa-user input-icon"></i>
+          <input type="text" class="form-control" id="fullName" name="fullName" placeholder="John Smith" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="email">Email Address <span class="required">*</span></label>
+        <div class="input-group">
+          <i class="fa-solid fa-envelope input-icon"></i>
+          <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required/>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="password">Password <span class="required">*</span></label>
+        <div class="input-group" style="position:relative">
+          <i class="fa-solid fa-lock input-icon"></i>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Min. 6 characters" required/>
+          <button type="button" class="password-toggle" onclick="togglePass('password',this)"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="confirmPassword">Confirm Password <span class="required">*</span></label>
+        <div class="input-group" style="position:relative">
+          <i class="fa-solid fa-lock input-icon"></i>
+          <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Repeat your password" required/>
+          <button type="button" class="password-toggle" onclick="togglePass('confirmPassword',this)"><i class="fa-solid fa-eye"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="mobileNumber">Mobile Number <span class="required">*</span></label>
+        <div class="input-group">
+          <i class="fa-solid fa-phone input-icon"></i>
+          <input type="tel" class="form-control" id="mobileNumber" name="mobileNumber" placeholder="+1-555-0100" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+        <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" min="1920-01-01" max="2026-12-31" required/>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="gender">Gender <span class="required">*</span></label>
+        <select class="form-control" id="gender" name="gender" required>
+          <option value="">Select gender</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="city">City <span class="required">*</span></label>
+        <div class="input-group">
+          <i class="fa-solid fa-city input-icon"></i>
+          <input type="text" class="form-control" id="city" name="city" placeholder="New York" required/>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="state">State / Region <span class="required">*</span></label>
+      <div class="input-group">
+        <i class="fa-solid fa-map-location-dot input-icon"></i>
+        <input type="text" class="form-control" id="state" name="state" placeholder="New York" required/>
+      </div>
+    </div>
+
+    <!-- DONOR FIELDS -->
+    <div class="donor-fields" id="donor-fields">
+      <hr style="border-color:var(--border); margin: 20px 0;"/>
+      <p style="font-size:.875rem; font-weight:600; color:var(--primary); margin-bottom:16px"><i class="fa-solid fa-syringe"></i> Donor Information</p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="bloodGroup">Blood Group <span class="required">*</span></label>
+          <select class="form-control" id="bloodGroup" name="bloodGroup">
+            <option value="">Select blood group</option>
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="lastDonationDate">Last Donation Date</label>
+          <input type="date" class="form-control" id="lastDonationDate" name="lastDonationDate"/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <input type="checkbox" id="isAvailable" name="isAvailable" checked style="accent-color:var(--primary); width:16px; height:16px; vertical-align:middle; margin-right:6px"/>
+          I am currently available to donate blood
+        </label>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div id="reg-error" style="display:none; background:var(--danger-soft); color:var(--danger); padding:12px 16px; border-radius:var(--radius); margin-bottom:18px; font-size:.875rem; font-weight:500; align-items:center; gap:8px">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span id="reg-error-text">Registration failed. Please check the form and try again.</span>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 btn-lg" id="reg-btn">
+      <i class="fa-solid fa-user-plus"></i> Create Account
+    </button>
+  </form>
+
+  <div class="auth-footer-link">
+    Already have an account? <a href="/login.html" id="link-to-login">Sign in</a>
+  </div>
+  <div class="auth-footer-link" style="margin-top:8px">
+    <a href="/index.html" style="color: var(--text-muted); font-size:.8rem"><i class="fa-solid fa-arrow-left"></i> Back to Home</a>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/js/app.js"></script>
+<script>
+  let selectedRole = null;
+
+  // Toggle role selection UI
+  document.querySelectorAll('.role-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.role-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      selectedRole = opt.querySelector('input[name="role"]').value;
+      document.getElementById('donor-fields').classList.toggle('visible', selectedRole === 'DONOR');
+    });
+  });
+
+  function togglePass(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon  = btn.querySelector('i');
+    if (input.type === 'password') { input.type = 'text'; icon.className = 'fa-solid fa-eye-slash'; }
+    else { input.type = 'password'; icon.className = 'fa-solid fa-eye'; }
+  }
+
+  // Redirect if already logged in
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = Session.get();
+    if (user) window.location.href = roleDashboard(user.role);
+  });
+
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    clearValidation(form);
+
+    const errorDiv  = document.getElementById('reg-error');
+    const errorText = document.getElementById('reg-error-text');
+    const btn = document.getElementById('reg-btn');
+    errorDiv.style.display = 'none';
+
+    // Role validation
+    if (!selectedRole) {
+      errorText.textContent = 'Please select your role (Donor or Requester)';
+      errorDiv.style.display = 'flex';
+      return;
+    }
+
+    // Basic field collection
+    const payload = {
+      fullName:        document.getElementById('fullName').value.trim(),
+      email:           document.getElementById('email').value.trim(),
+      password:        document.getElementById('password').value,
+      confirmPassword: document.getElementById('confirmPassword').value,
+      mobileNumber:    document.getElementById('mobileNumber').value.trim(),
+      dateOfBirth:     document.getElementById('dateOfBirth').value,
+      gender:          document.getElementById('gender').value,
+      city:            document.getElementById('city').value.trim(),
+      state:           document.getElementById('state').value.trim(),
+      role:            selectedRole
+    };
+
+    // Donor extras
+    if (selectedRole === 'DONOR') {
+      payload.bloodGroup       = document.getElementById('bloodGroup').value;
+      payload.lastDonationDate = document.getElementById('lastDonationDate').value || null;
+      payload.isAvailable      = document.getElementById('isAvailable').checked;
+    }
+
+    // Client-side validation
+    let valid = true;
+    if (!payload.fullName)     { markInvalid(document.getElementById('fullName'), 'Full name is required'); valid = false; }
+    if (!payload.email)        { markInvalid(document.getElementById('email'), 'Email is required'); valid = false; }
+    if (!payload.password || payload.password.length < 6) { markInvalid(document.getElementById('password'), 'Password must be at least 6 characters'); valid = false; }
+    if (payload.password !== payload.confirmPassword) { markInvalid(document.getElementById('confirmPassword'), 'Passwords do not match'); valid = false; }
+    if (!payload.dateOfBirth) {
+      markInvalid(document.getElementById('dateOfBirth'), 'Date of birth is required');
+      valid = false;
+    } else {
+      const parts = payload.dateOfBirth.split('-');
+      const y = parseInt(parts[0], 10);
+      const currY = new Date().getFullYear();
+      if (isNaN(y) || y < 1920 || y > currY) {
+        markInvalid(document.getElementById('dateOfBirth'), 'Please enter a valid Date of Birth (Year between 1920 and ' + currY + ')');
+        valid = false;
+      }
+    }
+    if (!payload.gender)       { markInvalid(document.getElementById('gender'), 'Please select your gender'); valid = false; }
+    if (!payload.city)         { markInvalid(document.getElementById('city'), 'City is required'); valid = false; }
+    if (!payload.state)        { markInvalid(document.getElementById('state'), 'State is required'); valid = false; }
+    if (selectedRole === 'DONOR' && !payload.bloodGroup) { markInvalid(document.getElementById('bloodGroup'), 'Blood group is required for donors'); valid = false; }
+    if (!valid) return;
+
+    setLoading(btn, true, 'Creating account...');
+
+    try {
+      const res = await API.register(payload);
+      if (res.success) {
+        Toast.success('Account created! Please log in. 🎉');
+        setTimeout(() => window.location.href = '/login.html', 1200);
+      }
+    } catch(err) {
+      errorText.textContent = err.message || 'Registration failed. Please check your details.';
+      errorDiv.style.display = 'flex';
+    } finally {
+      setLoading(btn, false);
+    }
+  });
+</script>
+</body>
+</html>
