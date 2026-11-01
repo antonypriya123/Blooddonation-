@@ -182,11 +182,11 @@ cp .env.example .env
 ```
 Fill in your credentials:
 ```properties
-DB_HOST=reseau.proxy.rlwy.net
-DB_PORT=54263
-DB_NAME=railway
-DB_USERNAME=root
-DB_PASSWORD=your_railway_mysql_password
+DB_HOST=mysql-29ab75ac-babishbabish1012-278a.j.aivencloud.com
+DB_PORT=13080
+DB_NAME=defaultdb
+DB_USERNAME=avnadmin
+DB_PASSWORD=your_aiven_mysql_password
 PORT=8080
 ```
 

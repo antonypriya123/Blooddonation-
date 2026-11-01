@@ -65,7 +65,7 @@ public class BloodConnectApplication {
         if (dbHost == null) dbHost = System.getenv("DB_HOST");
         if (dbHost == null) dbHost = System.getProperty("MYSQLHOST");
         if (dbHost == null) dbHost = System.getenv("MYSQLHOST");
-        if (dbHost == null) dbHost = "mysql.railway.internal";
+        if (dbHost == null) dbHost = "mysql-29ab75ac-babishbabish1012-278a.j.aivencloud.com";
 
         boolean hostResolvable = false;
         try {

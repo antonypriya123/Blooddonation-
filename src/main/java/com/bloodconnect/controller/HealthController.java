@@ -19,13 +19,13 @@ public class HealthController {
 
     private final DataSource dataSource;
 
-    @Value("${DB_HOST:reseau.proxy.rlwy.net}")
+    @Value("${DB_HOST:mysql-29ab75ac-babishbabish1012-278a.j.aivencloud.com}")
     private String dbHost;
 
-    @Value("${DB_PORT:54263}")
+    @Value("${DB_PORT:13080}")
     private String dbPort;
 
-    @Value("${DB_NAME:railway}")
+    @Value("${DB_NAME:defaultdb}")
     private String dbName;
 
     public HealthController(DataSource dataSource) {
