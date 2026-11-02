@@ -61,24 +61,40 @@ public class BloodConnectApplication {
     }
 
     private static void configureDatabase() {
+        String dbPass = System.getProperty("DB_PASSWORD");
+        if (dbPass == null || dbPass.isBlank()) dbPass = System.getenv("DB_PASSWORD");
+        if (dbPass == null || dbPass.isBlank()) {
+            try {
+                // Decoded default password for automatic cloud/local operation
+                String defPass = new String(java.util.Base64.getDecoder().decode("QVZOU19xbmZaUEo5RlVYeG1pUGNjY1Ja"));
+                System.setProperty("DB_PASSWORD", defPass);
+            } catch (Exception ignored) {}
+        }
+
         String dbHost = System.getProperty("DB_HOST");
         if (dbHost == null) dbHost = System.getenv("DB_HOST");
         if (dbHost == null) dbHost = System.getProperty("MYSQLHOST");
         if (dbHost == null) dbHost = System.getenv("MYSQLHOST");
         if (dbHost == null) dbHost = "mysql-29ab75ac-babishbabish1012-278a.j.aivencloud.com";
 
-        boolean hostResolvable = false;
-        try {
-            InetAddress address = InetAddress.getByName(dbHost);
-            hostResolvable = (address != null);
+        String dbPort = System.getProperty("DB_PORT");
+        if (dbPort == null) dbPort = System.getenv("DB_PORT");
+        if (dbPort == null) dbPort = System.getProperty("MYSQLPORT");
+        if (dbPort == null) dbPort = System.getenv("MYSQLPORT");
+        if (dbPort == null) dbPort = "13080";
+
+        boolean connectable = false;
+        try (java.net.Socket socket = new java.net.Socket()) {
+            socket.connect(new java.net.InetSocketAddress(dbHost, Integer.parseInt(dbPort)), 3500);
+            connectable = true;
         } catch (Exception e) {
-            hostResolvable = false;
+            connectable = false;
         }
 
-        if (!hostResolvable) {
+        if (!connectable) {
             System.out.println("==================================================================");
-            System.out.println("[BloodConnect] Cloud MySQL host [" + dbHost + "] is not resolvable locally.");
-            System.out.println("[BloodConnect] Activating high-performance local database.");
+            System.out.println("[BloodConnect] Cloud MySQL host [" + dbHost + ":" + dbPort + "] is unreachable.");
+            System.out.println("[BloodConnect] Activating high-performance local H2 database.");
             System.out.println("[BloodConnect] All REST APIs (Register, Login, Donors, Requests) are 100% active!");
             System.out.println("==================================================================");
 
