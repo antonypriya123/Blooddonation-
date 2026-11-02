@@ -1,0 +1,12 @@
+[33mcommit 43a1ada9ea8054c3a77ce1527a5963f7ff142b0a[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: 9787239287a <antonypriya2007@gmail.com>
+Date:   Sun Nov 1 20:40:02 2026 +0530
+
+    Updated project code
+
+ .env.example                                                 | 12 [32m++++++[m[31m------[m
+ README.md                                                    | 10 [32m+++++[m[31m-----[m
+ src/main/java/com/bloodconnect/BloodConnectApplication.java  |  2 [32m+[m[31m-[m
+ .../java/com/bloodconnect/controller/HealthController.java   |  6 [32m+++[m[31m---[m
+ src/main/resources/application.properties                    | 12 [32m++++++[m[31m------[m
+ 5 files changed, 21 insertions(+), 21 deletions(-)
