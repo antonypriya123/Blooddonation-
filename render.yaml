@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: bloodconnect
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DB_HOST
+        value: mysql-29ab75ac-babishbabish1012-278a.j.aivencloud.com
+      - key: DB_PORT
+        value: 13080
+      - key: DB_NAME
+        value: defaultdb
+      - key: DB_USERNAME
+        value: avnadmin
+      - key: DB_PASSWORD
+        sync: false
+    healthCheckPath: /actuator/health
