@@ -1368,12 +1368,16 @@ select.form-control { appearance: none; background-image: url("data:image/svg+xm
   min-height: 100vh;
   background: linear-gradient(160deg, var(--navy) 0%, var(--navy-light) 50%, var(--navy-soft) 100%);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 48px 24px;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+.auth-page .auth-card {
+  margin: auto;
 }
 
 .auth-page::before {

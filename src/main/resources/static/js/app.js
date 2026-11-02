@@ -75,7 +75,20 @@ const API = {
   },
   async _handle(res) {
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw { status: res.status, message: data.message || 'Request failed', data };
+    if (!res.ok) {
+      // Extract a user-friendly string message from various response shapes
+      let msg = 'Request failed';
+      if (typeof data.message === 'string' && data.message) {
+        msg = data.message;
+      } else if (data.error && typeof data.error === 'string') {
+        msg = data.error;
+      } else if (data.errors) {
+        // Validation errors map: pick first one
+        const vals = Object.values(data.errors);
+        if (vals.length) msg = vals[0];
+      }
+      throw { status: res.status, message: msg, data };
+    }
     return data;
   }
 };
@@ -303,9 +316,12 @@ const Modal = {
     } else {
       document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
     }
+    // Only restore scroll if no other modal is open
     if (!document.querySelector('.modal-overlay.active')) {
       document.body.style.overflow = '';
+      document.body.style.overflowY = '';
       document.documentElement.style.overflow = '';
+      document.documentElement.style.overflowY = 'auto';
     }
   },
   init() {
